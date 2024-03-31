@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     Cube cube(buffer);
 
     cube.print_counts();
+    cube.print_cube();
 
     return 0;
 }

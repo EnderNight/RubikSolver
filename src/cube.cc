@@ -2,10 +2,11 @@
 
 #include <algorithm>
 #include <iostream>
-#include <map>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 Cube::Cube(std::stringstream& cube_stream)
 {
@@ -32,16 +33,15 @@ int Cube::edge_size_get() const { return edge_size_; }
 
 int Cube::num_colors_get() const { return num_colors_; }
 
-static std::map<char, int> get_counts(const Cube& cube)
+std::unordered_map<char, int> Cube::get_counts() const
 {
-    std::map<char, int> map;
-    const Cube::cube_type& blocks = cube.cube_get();
+    std::unordered_map<char, int> map;
 
-    for (const auto& link : cube.colors_get())
+    for (const auto& link : colors_)
     {
         map.insert(std::make_pair(
             link.first,
-            std::count(blocks.begin(), blocks.end(), link.first)));
+            std::count(cube_.begin(), cube_.end(), link.first)));
     }
 
     return map;
@@ -49,7 +49,7 @@ static std::map<char, int> get_counts(const Cube& cube)
 
 void Cube::print_counts() const
 {
-    std::map<char, int> counts = get_counts(*this);
+    std::unordered_map<char, int> counts = get_counts();
 
     for (const auto& link : colors_)
     {
@@ -58,7 +58,33 @@ void Cube::print_counts() const
     }
 }
 
+const std::string Cube::get_face_str(int pos) const
+{
+    std::string res;
+
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            res += cube_[pos + i * edge_size_ + j];
+        }
+
+        if (i != 2)
+            res += "|";
+    }
+
+    return res;
+}
+
 void Cube::print_cube() const
 {
-    std::cout << "Not implemented" << std::endl;
+    int face_size = edge_size_ * edge_size_;
+    std::vector<std::string> faces = {"Front", "Right", "Back",
+                                      "Left",  "Up",    "Down"};
+
+    for (int i = 0; i < faces.size(); i++)
+    {
+        std::cout << faces[i] << ": " << get_face_str(i * face_size)
+                  << std::endl;
+    }
 }

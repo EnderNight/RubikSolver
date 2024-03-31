@@ -1,6 +1,3 @@
 # CMake generated files
 build/
 .cache/
-
-# Test files
-cube.esl

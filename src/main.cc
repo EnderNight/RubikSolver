@@ -23,8 +23,7 @@ int main(int argc, char* argv[])
 
     Cube cube(buffer);
 
-    for (char c : cube.cube_get())
-        std::cout << c << std::endl;
+    cube.print_counts();
 
     return 0;
 }

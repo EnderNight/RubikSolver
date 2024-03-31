@@ -1,2 +1,2 @@
 # EnderSolver
-A Rubik's cube solving algorithm
+A Rubik's cube solver

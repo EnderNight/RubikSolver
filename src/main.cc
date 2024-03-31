@@ -1,12 +1,17 @@
+#include "cube.hh"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-void print_usage() { std::cout << "Usage: solver [cube.esl]" << std::endl; }
-
-int main(int argc, char *argv[])
+void print_usage()
 {
-    if (argc != 2) {
+    std::cout << "Usage: solver [cube.esl]" << std::endl;
+}
+
+int main(int argc, char* argv[])
+{
+    if (argc != 2)
+    {
         print_usage();
         return 0;
     }
@@ -16,7 +21,10 @@ int main(int argc, char *argv[])
 
     buffer << file.rdbuf();
 
-    std::cout << buffer.str() << std::endl;
+    Cube cube(buffer);
+
+    for (char c : cube.cube_get())
+        std::cout << c << std::endl;
 
     return 0;
 }

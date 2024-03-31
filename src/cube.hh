@@ -1,6 +1,5 @@
 #pragma once
 
-#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -13,7 +12,8 @@ class Cube
     using colors_type = std::unordered_map<char, std::string>;
 
     // Constructor
-    Cube(std::stringstream& cube_stream);
+    // \a filename file name containing the cube data
+    Cube(const std::string& filename);
 
     // Accessors
     const cube_type& cube_get() const;

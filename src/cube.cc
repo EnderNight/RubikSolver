@@ -1,16 +1,26 @@
 #include "cube.hh"
 
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-Cube::Cube(std::stringstream& cube_stream)
+Cube::Cube(const std::string& filename)
 {
+    std::ifstream file(filename);
+
+    if (!file.is_open())
+        throw std::runtime_error("Could not open cube file");
+
+    std::stringstream cube_stream;
     std::string face;
+
+    cube_stream << file.rdbuf();
 
     while (std::getline(cube_stream, face))
     {

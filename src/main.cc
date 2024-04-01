@@ -1,4 +1,5 @@
 #include "cube.hh"
+#include <fstream>
 #include <iostream>
 
 void print_usage()
@@ -14,9 +15,30 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    Cube cube(argv[1]);
+    std::ifstream cube_file(argv[1]);
+    std::ifstream rotations_file(argv[2]);
 
-    cube.print_counts();
+    if (!cube_file.is_open())
+    {
+        std::cerr << "Could not open cube file '" << argv[1] << "'"
+                  << std::endl;
+        return 1;
+    }
+
+    if (!rotations_file.is_open())
+    {
+        std::cerr << "Could not open rotations file '" << argv[1] << "'"
+                  << std::endl;
+        return 1;
+    }
+
+    Cube cube(cube_file, rotations_file);
+
+    std::cout << "Cube: " << std::endl;
+    cube.print_cube();
+
+    std::cout << std::endl;
+    cube.rotate("S'");
     cube.print_cube();
 
     return 0;

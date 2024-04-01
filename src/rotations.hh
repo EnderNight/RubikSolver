@@ -1,5 +1,6 @@
 #pragma once
 
+#include <istream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -12,11 +13,13 @@ class Rotations
         std::unordered_map<std::string, std::vector<int>>;
 
     // Constructor
-    // \a filename csv file name containing the rotation data
-    Rotations(const std::string& filename);
+    Rotations(std::istream& str);
 
     // Accessors
     const rotations_type& rotations_get() const;
+
+    // Pretty print the loaded rotations
+    void print_rotations() const;
 
   private:
     // Map linking rotation names to actual rotations

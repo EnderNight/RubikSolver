@@ -1,28 +1,21 @@
 #include "cube.hh"
+#include "rotations.hh"
 
 #include <algorithm>
-#include <fstream>
 #include <iostream>
+#include <istream>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-Cube::Cube(const std::string& filename)
+Cube::Cube(std::istream& str, std::istream& rotations_str)
+    : rotations_(rotations_str)
 {
-    std::ifstream file(filename);
-
-    if (!file.is_open())
-        throw std::runtime_error("Could not open cube file");
-
-    std::stringstream cube_stream;
     std::string face;
 
-    cube_stream << file.rdbuf();
-
-    while (std::getline(cube_stream, face))
+    while (std::getline(str, face))
     {
         std::stringstream face_stream(face);
         std::string line;
@@ -36,6 +29,8 @@ Cube::Cube(const std::string& filename)
 }
 
 const Cube::cube_type& Cube::cube_get() const { return cube_; }
+
+const Rotations& Cube::rotations_get() const { return rotations_; }
 
 const Cube::colors_type& Cube::colors_get() const { return colors_; }
 
@@ -55,6 +50,24 @@ std::unordered_map<char, int> Cube::get_counts() const
     }
 
     return map;
+}
+
+void Cube::rotate(const std::string& rotation)
+{
+    const auto& it = rotations_.rotations_get().find(rotation);
+
+    if (it == rotations_.rotations_get().end())
+        return;
+
+    const std::vector<int>& rot_vect = it->second;
+    std::vector<char> new_cube(cube_);
+
+    for (int i = 0; i < rot_vect.size(); i++)
+    {
+        new_cube[i] = cube_[rot_vect[i]];
+    }
+
+    cube_ = new_cube;
 }
 
 void Cube::print_counts() const

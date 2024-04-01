@@ -1,6 +1,5 @@
 #pragma once
 
-#include "rotations.hh"
 #include <istream>
 #include <string>
 #include <unordered_map>
@@ -13,12 +12,14 @@ class Cube
     using cube_type = std::vector<char>;
     using colors_type = std::unordered_map<char, std::string>;
 
-    // Constructor
-    Cube(std::istream& cube_str, std::istream& rotations_str);
+    // Constructors
+    // Create a cube from a stream
+    Cube(std::istream& cube_str);
+    // Create a cube from a vector of positions
+    Cube(const std::vector<char> cube);
 
     // Accessors
     const cube_type& cube_get() const;
-    const Rotations& rotations_get() const;
     const colors_type& colors_get() const;
     int edge_size_get() const;
     int num_colors_get() const;
@@ -26,12 +27,8 @@ class Cube
     // Get the number of blocks per colors
     std::unordered_map<char, int> get_counts() const;
 
-    // Rotate the cube with the specified rotation
-    // if the rotation is not found, do nothing
-    void rotate(const std::string& rotation);
-
-    // Restore the previous rotation
-    void restore_rotation();
+    // Rotate a new cube with the specified rotation
+    const Cube rotate(const std::vector<int>& rotation);
 
     // Display every color count
     void print_counts() const;
@@ -47,13 +44,6 @@ class Cube
     // Each letter (W, Y, R, ...) represents colors
     // (White, Yellow, Red, ...) as in colors_
     cube_type cube_;
-
-    // Temporary cube for rotations
-    cube_type tmp_rot_;
-    bool has_rotate_ = false;
-
-    // Possible rotations
-    Rotations rotations_;
 
     // Number of blocks per edges
     // For now, only 3x3x3 cubes are supported

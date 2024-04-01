@@ -1,5 +1,4 @@
 #include "cube.hh"
-#include "rotations.hh"
 
 #include <algorithm>
 #include <iostream>
@@ -10,8 +9,7 @@
 #include <utility>
 #include <vector>
 
-Cube::Cube(std::istream& str, std::istream& rotations_str)
-    : rotations_(rotations_str)
+Cube::Cube(std::istream& str)
 {
     std::string face;
 
@@ -28,9 +26,9 @@ Cube::Cube(std::istream& str, std::istream& rotations_str)
     }
 }
 
-const Cube::cube_type& Cube::cube_get() const { return cube_; }
+Cube::Cube(const std::vector<char> cube) : cube_(cube) {}
 
-const Rotations& Cube::rotations_get() const { return rotations_; }
+const Cube::cube_type& Cube::cube_get() const { return cube_; }
 
 const Cube::colors_type& Cube::colors_get() const { return colors_; }
 
@@ -52,31 +50,18 @@ std::unordered_map<char, int> Cube::get_counts() const
     return map;
 }
 
-void Cube::rotate(const std::string& rotation)
+const Cube Cube::rotate(const std::vector<int>& rotations)
 {
-    const auto& it = rotations_.rotations_get().find(rotation);
+    Cube::cube_type new_cube = cube_;
 
-    if (it == rotations_.rotations_get().end())
-        return;
-
-    const std::vector<int>& rot_vect = it->second;
-    std::vector<char> new_cube(cube_);
-
-    tmp_rot_ = cube_;
-    has_rotate_ = true;
-
-    for (int i = 0; i < rot_vect.size(); i++)
+    for (int i = 0; i < rotations.size(); i++)
     {
-        new_cube[i] = cube_[rot_vect[i]];
+        new_cube[i] = cube_[rotations[i]];
     }
 
-    cube_ = new_cube;
-}
+    Cube res(new_cube);
 
-void Cube::restore_rotation()
-{
-    if (has_rotate_)
-        cube_ = tmp_rot_;
+    return res;
 }
 
 void Cube::print_counts() const

@@ -1,5 +1,6 @@
 #include "cube-solver.hh"
 #include "cube.hh"
+#include "rotations.hh"
 #include <fstream>
 #include <iostream>
 
@@ -20,19 +21,23 @@ int main(int argc, char* argv[])
 
     std::ifstream cube_file(argv[1]);
     std::ifstream solved_cube_file(argv[2]);
-    std::ifstream rotations_file1(argv[3]);
-    std::ifstream rotations_file2(argv[3]);
+    std::ifstream rotations_file(argv[3]);
 
     if (!cube_file.is_open() || !solved_cube_file.is_open() ||
-        !rotations_file1.is_open())
+        !rotations_file.is_open())
     {
         std::cerr << "Could not open file" << std::endl;
         return 1;
     }
 
-    Cube cube(cube_file, rotations_file1);
-    Cube solved_cube(solved_cube_file, rotations_file2);
-    CubeSolver solver(cube, solved_cube);
+    Cube cube(cube_file);
+    Cube solved_cube(solved_cube_file);
+    Rotations rotations(rotations_file);
+    CubeSolver solver(cube, solved_cube, rotations);
+
+    cube = cube.rotate(rotations.rotations_get().find("R")->second);
+    cube = cube.rotate(rotations.rotations_get().find("U")->second);
+    cube = cube.rotate(rotations.rotations_get().find("R'")->second);
 
     std::cout << "Cube: " << std::endl;
     cube.print_cube();

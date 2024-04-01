@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cube.hh"
+#include "rotations.hh"
 
 #include <string>
 #include <vector>
@@ -11,15 +12,15 @@ class CubeSolver
     using solve_type = std::vector<std::string>;
 
     // Constructor
-    CubeSolver(Cube& cube_to_solve, Cube& solved_cube);
+    CubeSolver(const Cube& cube_to_solve, const Cube& solved_cube,
+               const Rotations& rotations);
 
     // Accessors
     const Cube& cur_cube_get() const;
     const Cube& solved_cube_get() const;
 
-    // Calculate gap compared to solved cube
-    int calc_heuristic();
-    // Calculate gap compared to \a cube
+    // Heuristic counting the number of
+    // wrongly placed facets in \a cube
     int calc_heuristic(const Cube& cube);
 
     // Solve the cur_cube_
@@ -27,8 +28,11 @@ class CubeSolver
 
   private:
     // The cube to solve
-    Cube& cur_cube_;
+    const Cube& cur_cube_;
 
-    // The cube goal for cur_cube_
-    Cube& solved_cube_;
+    // The goal cube
+    const Cube& solved_cube_;
+
+    // The possible rotations
+    const Rotations& rotations_;
 };

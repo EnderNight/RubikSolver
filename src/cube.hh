@@ -30,6 +30,9 @@ class Cube
     // if the rotation is not found, do nothing
     void rotate(const std::string& rotation);
 
+    // Restore the previous rotation
+    void restore_rotation();
+
     // Display every color count
     void print_counts() const;
     // Pretty print the cube pattern
@@ -44,6 +47,10 @@ class Cube
     // Each letter (W, Y, R, ...) represents colors
     // (White, Yellow, Red, ...) as in colors_
     cube_type cube_;
+
+    // Temporary cube for rotations
+    cube_type tmp_rot_;
+    bool has_rotate_ = false;
 
     // Possible rotations
     Rotations rotations_;

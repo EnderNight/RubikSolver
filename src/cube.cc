@@ -62,12 +62,21 @@ void Cube::rotate(const std::string& rotation)
     const std::vector<int>& rot_vect = it->second;
     std::vector<char> new_cube(cube_);
 
+    tmp_rot_ = cube_;
+    has_rotate_ = true;
+
     for (int i = 0; i < rot_vect.size(); i++)
     {
         new_cube[i] = cube_[rot_vect[i]];
     }
 
     cube_ = new_cube;
+}
+
+void Cube::restore_rotation()
+{
+    if (has_rotate_)
+        cube_ = tmp_rot_;
 }
 
 void Cube::print_counts() const

@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+
+import sys
+import csv
+import math
+
+
+class PriorityQueue:
+    """priority queue very bad implementation"""
+
+    def __init__(self, less):
+        self.queue = []
+        self.less = less
+
+    def top(self):
+        if self.queue:
+            return self.queue[-1]
+        return None
+
+    def empty(self):
+        return len(self.queue) == 0
+
+    def size(self):
+        return len(self.queue)
+
+    def pop(self):
+        self.queue.pop()
+
+    def push(self, elem):
+        i = 0
+        while i < len(self.queue) and self.less(elem, self.queue[i]):
+            i += 1
+        self.queue.insert(i, elem)
+
+    def __contains__(self, elem):
+        for cube, f_score in self.queue:
+            if cube == elem:
+                return True
+        return False
+
+    def __bool__(self):
+        return not self.empty()
+
+    def __len__(self):
+        return self.size()
+
+    def __str__(self):
+        return str(self.queue)
+
+
+class Cube:
+    """Represents a cube state"""
+
+    def __init__(self, cube_stream=None):
+        # Cube representation as list of chars
+        self.facets = []
+
+        if cube_stream is not None:
+            reader = csv.reader(cube_stream)
+
+            for row in reader:
+                self.facets.extend(row)
+
+    def rotate(self, rot_list):
+        """
+        Returns a new rotated cube obtained from the current one
+        """
+        new_cube = Cube()
+        new_cube.facets = self.facets.copy()
+
+        for i in range(len(new_cube.facets)):
+            new_cube.facets[i] = self.facets[rot_list[i]]
+
+        return new_cube
+
+    def calc_heuristics(self, solved_cube):
+        same_vals = [
+            i for i, j in zip(self.facets, solved_cube.facets) if i == j
+        ]
+
+        return len(self.facets) - len(same_vals)
+
+    def __str__(self):
+        res = ""
+        for i in range(6):
+            for j in range(3):
+                for k in range(3):
+                    res += self.facets[9 * i + 3 * j + k]
+                if j != 2:
+                    res += "|"
+            res += "\n"
+        res = res[:-1]
+        return res
+
+    def __eq__(self, rhs):
+        for i in range(len(self.facets)):
+            if self.facets[i] != rhs.facets[i]:
+                return False
+        return True
+
+    def __hash__(self):
+        return hash(tuple(self.facets))
+
+
+class Rotations:
+    """Possible cube rotations"""
+
+    def __init__(self, rotations_stream):
+        # Rotations are represented as a dict of (name, rot_list) tuples
+        self.rotations = dict()
+        reader = csv.reader(rotations_stream)
+
+        for row in reader:
+            self.rotations[row[0]] = [int(rot) for rot in row[1:]]
+
+    def __str__(self):
+        res = ""
+        for rot_name, pos_vect in self.rotations.items():
+            res += rot_name + ": " + str(pos_vect) + "\n"
+        return res
+
+
+def usage():
+    print("Usage: solver cube_to_solve.csv solved_cube.csv rotations.csv")
+
+
+def reconstruct_path(came_from: dict, current):
+    path = []
+
+    while current in came_from.keys():
+        current, rot_name = came_from[current]
+        path.insert(0, rot_name)
+
+    return path
+
+
+def solve(start: Cube, solved_cube: Cube, rotations: Rotations):
+    """ Uses the A* algorithm """
+
+    def less(lhs, rhs):
+        return lhs[1] < rhs[1]
+
+    open_set = PriorityQueue(less)
+    came_from = dict()
+    g_score = dict()
+    f_score = dict()
+
+    g_score[start] = 0
+    f_score[start] = start.calc_heuristics(solved_cube)
+    open_set.push((start, f_score[start]))
+
+    while open_set:
+        current, _ = open_set.top()
+        if current == solved_cube:
+            return reconstruct_path(came_from, current)
+
+        open_set.pop()
+        for name, rotation in rotations.rotations.items():
+
+            neighbor: Cube = current.rotate(rotation)
+            tentative_gscore = g_score.get(current, math.inf) + 1
+
+            # print("Name: ", name)
+            # print("Neighbor: \n" + str(neighbor))
+            # print("g score: ", tentative_gscore)
+            # print()
+
+            if tentative_gscore < g_score.get(neighbor, math.inf):
+                came_from[neighbor] = (current, name)
+                g_score[neighbor] = tentative_gscore
+                f_score[neighbor] = (
+                    tentative_gscore + neighbor.calc_heuristics(solved_cube)
+                )
+                if neighbor not in open_set:
+                    open_set.push((neighbor, f_score[neighbor]))
+
+    raise Exception("No solutions found")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        usage()
+        exit()
+
+    with (
+        open(sys.argv[1]) as cube_csv,
+        open(sys.argv[3]) as rotations_csv,
+        open(sys.argv[2]) as solved_cube_csv,
+    ):
+        cube = Cube(cube_csv)
+        solved_cube = Cube(solved_cube_csv)
+        rotations = Rotations(rotations_csv)
+
+        try:
+            movements = solve(cube, solved_cube, rotations)
+
+            if movements:
+                print("Movements to execute: ")
+                for move in movements:
+                    print(move, sep=' ')
+                print()
+            else:
+                print("Cube already solved")
+
+        except Exception:
+            print("No solutions found")
